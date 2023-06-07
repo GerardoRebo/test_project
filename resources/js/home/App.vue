@@ -8,7 +8,77 @@
 		</v-app-bar>
 		<v-main>
 			<v-container>
-				Content Here
+
+				<v-row justify="space-around">
+					<v-col cols="auto">
+						<v-dialog transition="dialog-bottom-transition" max-width="600" v-model="dialog">
+							<template v-slot:activator="{ on, attrs }">
+								<v-btn color="primary" v-bind="attrs" v-on="on" @click="openAdd">From the bottom</v-btn>
+							</template>
+							<template v-slot:default="dialog">
+								<v-card>
+									<v-toolbar color="primary" dark>Opening from the bottom</v-toolbar>
+									<v-card-text>
+										<div class="text-h4 pa-12">Hello world!</div>
+										<v-text-field label="First Name" v-model="userForm.first_name"></v-text-field>
+										<v-text-field label="Last Name" v-model="userForm.last_name"></v-text-field>
+										<v-text-field label="Email" v-model="userForm.email"></v-text-field>
+									</v-card-text>
+									<v-card-actions class="justify-end">
+										<v-btn text @click="submitForm">Submit</v-btn>
+										<v-btn text @click="closeDialog">Close</v-btn>
+									</v-card-actions>
+								</v-card>
+							</template>
+						</v-dialog>
+					</v-col>
+				</v-row>
+				<div class="text-center justify-space-between d-flex">
+					<v-chip class="ma-2" label>
+						<strong>Total: </strong>{{ users.total }}
+					</v-chip>
+					<v-pagination v-model="users.current_page" :length="users.last_page" :total-visible="10"
+						@input="getInput" @next="goNext" @previous="goPrevious"></v-pagination>
+				</div>
+				<v-simple-table dense>
+					<template v-slot:default>
+						<thead>
+							<tr>
+								<th class="text-left">
+									First Name
+								</th>
+								<th class="text-left">
+									Last Name
+								</th>
+								<th class="text-left">
+									Email
+								</th>
+								<th class="text-left">
+									Created at
+								</th>
+								<th class="text-left">
+									Options
+								</th>
+							</tr>
+						</thead>
+						<tbody>
+							<tr v-for="user in users.data" :key="user.id">
+								<td>{{ user.first_name }}</td>
+								<td>{{ user.last_name }}</td>
+								<td>{{ user.email }}</td>
+								<td>{{ user.created_at }}</td>
+								<td style="display: flex;">
+									<div style="margin-right: 2em;" @click="openEdit(user.id)">
+										Edit
+									</div>
+									<div style="margin-right: 2em;" @click="deleteUser(user.id)">
+										Delete
+									</div>
+								</td>
+							</tr>
+						</tbody>
+					</template>
+				</v-simple-table>
 				<!-- If using vue-router -->
 				<!-- <router-view></router-view> -->
 			</v-container>
@@ -16,7 +86,118 @@
 	</v-app>
 </template>
 
-<script setup></script>
+<script setup>
+import Users from "../api/Users";
+import { onMounted, reactive, ref } from 'vue';
+
+const users = ref([])
+const dialog = ref(false)
+const type = ref("add")
+const userId = ref(null)
+const userForm = reactive({
+	first_name: "gear",
+	last_name: "rebo",
+	email: "ger@mail.com",
+})
+
+function openAdd() {
+	type.value = "add"
+}
+function openEdit(id) {
+	type.value = "edit"
+	dialog.value = true;
+	userId.value = id
+	// console.log(users.value.data);
+	// const element = users.value.data.find(user => console.log(`${user.id} ${id}`));
+	const element = users.value.data.find(user => user.id == id);
+
+	userForm.first_name = element.first_name;
+	userForm.last_name = element.last_name;
+	userForm.email = element.email;
+
+}
+function editUser() {
+	Users.editUser(userId.value, userForm)
+		.then((response) => {
+			if (response.status !== 200) {
+				return alert("somthing went wrong");
+			}
+			getUsers()
+
+		}).catch((error) => { }).finally(() => {
+			closeDialog()
+			cleanFields()
+		})
+}
+function storeUser() {
+	Users.storeUser(userForm).then((response) => {
+		if (response.status !== 200) {
+			return alert("somthing went wrong");
+		}
+		getUsers()
+		cleanFields()
+		closeDialog()
+
+	}).catch((error) => { 
+		alert("something went wrong")
+	}).finally(() => {
+	})
+}
+function deleteUser(id) {
+	Users.deleteUser(id).then((response) => {
+		if (response.status !== 200) {
+			return alert("somthing went wrong");
+		}
+		getUsers()
+
+	}).catch((error) => { }).finally(() => {
+	})
+}
+function submitForm() {
+	if (type.value === "add") {
+		return storeUser()
+	}
+	if (type.value === "edit") {
+		return editUser()
+	}
+}
+function cleanFields() {
+	userForm.first_name = '';
+	userForm.last_name = '';
+	userForm.email = '';
+}
+function closeDialog() {
+	dialog.value = false
+	cleanFields()
+
+}
+function getUsers(page = 1) {
+	Users.getUsers(page).then((response) => {
+		console.log(response);
+		if (response.status !== 200) {
+			return alert("somthing went wrong");
+		}
+		users.value = response.data
+
+	}).catch(() => { }).finally(() => { })
+}
+function goNext() {
+	getUsers(users.current_page + 1)
+}
+function goPrevious() {
+	getUsers(users.current_page - 1)
+}
+function getInput(input) {
+	console.log(input);
+	getUsers(input)
+}
+function mySubmit() {
+
+}
+onMounted(() => {
+	getUsers()
+})
+</script>
 
 <style>
 .v-application {
