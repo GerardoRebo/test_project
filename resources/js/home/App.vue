@@ -89,7 +89,6 @@
 <script setup>
 import Users from "../api/Users";
 import { onMounted, reactive, ref } from 'vue';
-
 const users = ref([])
 const dialog = ref(false)
 const type = ref("add")
@@ -107,8 +106,6 @@ function openEdit(id) {
 	type.value = "edit"
 	dialog.value = true;
 	userId.value = id
-	// console.log(users.value.data);
-	// const element = users.value.data.find(user => console.log(`${user.id} ${id}`));
 	const element = users.value.data.find(user => user.id == id);
 
 	userForm.first_name = element.first_name;
@@ -138,7 +135,7 @@ function storeUser() {
 		cleanFields()
 		closeDialog()
 
-	}).catch((error) => { 
+	}).catch((error) => {
 		alert("something went wrong")
 	}).finally(() => {
 	})
@@ -173,7 +170,6 @@ function closeDialog() {
 }
 function getUsers(page = 1) {
 	Users.getUsers(page).then((response) => {
-		console.log(response);
 		if (response.status !== 200) {
 			return alert("somthing went wrong");
 		}
@@ -182,20 +178,33 @@ function getUsers(page = 1) {
 	}).catch(() => { }).finally(() => { })
 }
 function goNext() {
+	updateQueryString('page', input);
 	getUsers(users.current_page + 1)
 }
 function goPrevious() {
+	updateQueryString('page', input);
 	getUsers(users.current_page - 1)
 }
 function getInput(input) {
-	console.log(input);
+	updateQueryString('page', input);
 	getUsers(input)
 }
-function mySubmit() {
+function updateQueryString(key, value) {
+	const url = new URL(window.location.href);
+	const searchParams = new URLSearchParams(url.search);
 
+	if (value === null) {
+		searchParams.delete(key);
+	} else {
+		searchParams.set(key, value);
+	}
+
+	const newUrl = `${url.origin}${url.pathname}?${searchParams.toString()}`;
+	window.history.replaceState({ path: newUrl }, '', newUrl);
 }
 onMounted(() => {
-	getUsers()
+
+	getUsers(page)
 })
 </script>
 
