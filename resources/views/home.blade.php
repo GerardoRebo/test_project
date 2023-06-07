@@ -11,6 +11,9 @@
 </head>
 
 <body>
+    <script>
+        const page = @json($page);
+    </script>
     <div id="app">
         {{-- <form id="logout-form" action="{{ route('logout') }}" method="POST" style="display: none;">
             @csrf
