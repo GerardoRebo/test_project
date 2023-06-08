@@ -13,13 +13,13 @@
 					<v-col cols="auto">
 						<v-dialog transition="dialog-bottom-transition" max-width="600" v-model="dialog">
 							<template v-slot:activator="{ on, attrs }">
-								<v-btn color="primary" v-bind="attrs" v-on="on" @click="openAdd">From the bottom</v-btn>
+								<v-btn color="primary" v-bind="attrs" v-on="on" @click="openAdd">Add User</v-btn>
 							</template>
 							<template v-slot:default="dialog">
 								<v-card>
-									<v-toolbar color="primary" dark>Opening from the bottom</v-toolbar>
+									<v-toolbar color="primary" dark>{{ message }}</v-toolbar>
 									<v-card-text>
-										<div class="text-h4 pa-12">Hello world!</div>
+										<div class="text-h4 pa-12"></div>
 										<v-text-field label="First Name" v-model="userForm.first_name"></v-text-field>
 										<v-text-field label="Last Name" v-model="userForm.last_name"></v-text-field>
 										<v-text-field label="Email" v-model="userForm.email"></v-text-field>
@@ -88,17 +88,22 @@
 
 <script setup>
 import Users from "../api/Users";
-import { onMounted, reactive, ref } from 'vue';
+import { computed, onMounted, reactive, ref } from 'vue';
 const users = ref([])
 const dialog = ref(false)
 const type = ref("add")
 const userId = ref(null)
 const userForm = reactive({
-	first_name: "gear",
-	last_name: "rebo",
-	email: "ger@mail.com",
+	first_name: "",
+	last_name: "",
+	email: "",
 })
-
+const message = computed(()=>{
+	if (type.value === "add") {
+		return "Add user"
+	}
+		return "Edit user"
+})
 function openAdd() {
 	type.value = "add"
 }
@@ -118,6 +123,11 @@ function editUser() {
 		.then((response) => {
 			if (response.status !== 200) {
 				return alert("somthing went wrong");
+			}
+			let page = getQueryParam('page')
+			if (page) {
+				getUsers(page)
+				return
 			}
 			getUsers()
 
@@ -144,6 +154,11 @@ function deleteUser(id) {
 	Users.deleteUser(id).then((response) => {
 		if (response.status !== 200) {
 			return alert("somthing went wrong");
+		}
+		let page = getQueryParam('page')
+		if (page) {
+			getUsers(page)
+			return
 		}
 		getUsers()
 
@@ -202,6 +217,12 @@ function updateQueryString(key, value) {
 	const newUrl = `${url.origin}${url.pathname}?${searchParams.toString()}`;
 	window.history.replaceState({ path: newUrl }, '', newUrl);
 }
+function getQueryParam(key) {
+	const url = new URL(window.location.href);
+	const searchParams = new URLSearchParams(url.search);
+	return searchParams.get(key);
+}
+
 onMounted(() => {
 
 	getUsers(page)

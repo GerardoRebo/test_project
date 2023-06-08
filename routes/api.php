@@ -21,8 +21,9 @@ use Illuminate\Validation\Rule;
 //});
 
 Route::get('/users', function (Request $request) {
-    return User::paginate(10);
+    return User::orderBy('created_at', 'desc')->paginate(10);
 });
+
 Route::post('/users', function (Request $request) {
     $validatedData = $request->validate([
         'first_name' => 'required',
