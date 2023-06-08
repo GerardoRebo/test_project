@@ -9,31 +9,34 @@
 		<v-main>
 			<v-container>
 
-				<v-row justify="space-around">
-					<v-col cols="auto">
-						<v-dialog transition="dialog-bottom-transition" max-width="600" v-model="dialog">
-							<template v-slot:activator="{ on, attrs }">
-								<v-btn color="primary" v-bind="attrs" v-on="on" @click="openAdd">Add User</v-btn>
-							</template>
-							<template v-slot:default="dialog">
-								<v-card>
-									<v-toolbar color="primary" dark>{{ message }}</v-toolbar>
-									<v-card-text>
-										<div class="text-h4 pa-12"></div>
-										<v-text-field label="First Name" v-model="userForm.first_name"></v-text-field>
-										<v-text-field label="Last Name" v-model="userForm.last_name"></v-text-field>
-										<v-text-field label="Email" v-model="userForm.email"></v-text-field>
-									</v-card-text>
-									<v-card-actions class="justify-end">
-										<v-btn text @click="submitForm">Submit</v-btn>
-										<v-btn text @click="closeDialog">Close</v-btn>
-									</v-card-actions>
-								</v-card>
-							</template>
-						</v-dialog>
-					</v-col>
-				</v-row>
-				<div class="text-center justify-space-between d-flex">
+				<!-- <v-row justify="space-around">
+					<v-col cols="auto"> -->
+				<div class="d-flex pa-4">
+					<v-dialog transition="dialog-bottom-transition" max-width="600" v-model="dialog" justify="space-end" >
+						<template v-slot:activator="{ on, attrs }">
+							<v-btn color="primary" v-bind="attrs" v-on="on" @click="openAdd" class="ml-auto">Add User</v-btn>
+						</template>
+						<template v-slot:default="dialog">
+							<v-card>
+								<v-toolbar color="primary" dark>{{ message }}</v-toolbar>
+								<v-card-text>
+									<div class="text-h4 pa-12"></div>
+									<v-text-field label="First Name" v-model="userForm.first_name"></v-text-field>
+									<v-text-field label="Last Name" v-model="userForm.last_name"></v-text-field>
+									<v-text-field label="Email" v-model="userForm.email"></v-text-field>
+								</v-card-text>
+								<v-card-actions class="justify-end">
+									<v-btn text @click="submitForm">Submit</v-btn>
+									<v-btn text @click="closeDialog">Close</v-btn>
+								</v-card-actions>
+							</v-card>
+						</template>
+					</v-dialog>
+				</div>
+
+				<!-- </v-col>
+				</v-row> -->
+				<div class="text-center justify-space-between d-flex pa-4">
 					<v-chip class="ma-2" label>
 						<strong>Total: </strong>{{ users.total }}
 					</v-chip>
@@ -98,11 +101,11 @@ const userForm = reactive({
 	last_name: "",
 	email: "",
 })
-const message = computed(()=>{
+const message = computed(() => {
 	if (type.value === "add") {
 		return "Add user"
 	}
-		return "Edit user"
+	return "Edit user"
 })
 function openAdd() {
 	type.value = "add"
