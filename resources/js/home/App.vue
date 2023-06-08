@@ -36,7 +36,7 @@
 
 				<!-- </v-col>
 				</v-row> -->
-				<div class="text-center justify-space-between d-flex pa-4">
+				<div class="text-center justify-space-between d-flex pa-6">
 					<v-chip class="ma-2" label>
 						<strong>Total: </strong>{{ users.total }}
 					</v-chip>
